@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 
+
 def create_parser() -> argparse.ArgumentParser:
     """Creates argument parser
 
