@@ -11,16 +11,21 @@ def create_parser() -> argparse.ArgumentParser:
     Returns:
         Argument parser
     """
-    DESCRIPTION = 'Generates a compilation database from the output of make'
+    DESCRIPTION = 'Generates compilation databases from the standard output of make'
     
-    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    NCOLS = os.get_terminal_size().columns
+    formatter = lambda prog: argparse.HelpFormatter(prog, 
+                                                    max_help_position=NCOLS)
+
+    parser = argparse.ArgumentParser(description=DESCRIPTION,
+                                     formatter_class=formatter)
 
     parser.add_argument('--compiler',
                         '-c',
                         metavar='COMPILER',
                         type=str,
                         required=False,
-                        help='compiler',
+                        help='specify compiler',
                         default=None)
 
     parser.add_argument('--dir',
@@ -54,25 +59,26 @@ def create_parser() -> argparse.ArgumentParser:
                         help='make target',
                         default='all')
 
-    parser.add_argument('remaining',
+    parser.add_argument('make_args',
+                        metavar='--',
                         type=str,
                         nargs=argparse.REMAINDER,
-                        help='make arguments',
+                        help='make arguments (excluding target)',
                         default=[])
 
     # this is to allow users to run their own clean command
     # (e.g. if the makefile doesn't have the "clean" target)
+    parser.add_argument('--clean-target',
+                        type=str,
+                        required=False,
+                        help='custom build cleaning target',
+                        default='clean')
+
     parser.add_argument('--no-clean',
                         required=False,
                         action='store_true',
                         help='don\'t run clean command',
                         default=False)
-
-    parser.add_argument('--clean-target',
-                        type=str,
-                        required=False,
-                        help='custom make target for cleaning build',
-                        default='clean')
 
     return parser
 
@@ -187,7 +193,10 @@ if __name__ == '__main__':
 
     parser = create_parser()
     config = parser.parse_args(sys.argv[1:])
-    make_args = config.remaining[1:]
+
+    make_args = config.make_args
+    if len(make_args) > 0 and make_args[0] == '--':
+        make_args = make_args[1:]
 
     # run make and capture the output
     os.chdir(config.dir)
