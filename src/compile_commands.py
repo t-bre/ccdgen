@@ -90,8 +90,6 @@ def make(target: str, args: list[str] = []) -> str:
 
     CODEC = 'utf-8' # TODO: is this always the case?
 
-    # TODO: allow target and args to be specified
-    #       -j is definitely not always portable
     result = subprocess.run(['make', target] + args, 
                             stdout=subprocess.PIPE, 
                             stderr=subprocess.PIPE)
@@ -146,7 +144,7 @@ def parse_compile_commands(make_stdout: str,
 
         db_entry = {
             "directory": os.path.dirname(file),
-            "command": line, # TODO: this needs to be shell escaped
+            "command": line,
             "file": os.path.basename(file)
         }
         
