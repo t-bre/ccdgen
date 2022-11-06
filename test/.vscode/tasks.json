@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "compile_commands.py",
+            "type": "shell",
+            "command": "python",
+            "osx": {
+                "command": "python3"
+            },
+            "args": [
+                "../src/compile_commands.py",
+                "--extensions", ".c",
+                "--target", "all",
+                "--", "-j"
+            ]
+        }
+    ]
+}

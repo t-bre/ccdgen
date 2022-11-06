@@ -32,6 +32,29 @@ Additional arguments (any, other than the target) can be passed to `make` by add
 python compile_commands.py --extensions .c --target all -- -j
 ```
 
+Example Visual Studio Code task:
+
+```json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "compile_commands.py",
+            "type": "shell",
+            "command": "python",
+            "osx": {
+                "command": "python3"
+            },
+            "args": [
+                "../src/compile_commands.py",
+                "--extensions", ".c",
+                "--target", "all",
+                "--", "-j"
+            ]
+        }
+    ]
+}
+```
 
 
 <!-- TODO: example as a vscode task -->
