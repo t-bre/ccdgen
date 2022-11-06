@@ -1,5 +1,10 @@
 # Compile Commands Database GENerator
 
+[![PyPI status](https://img.shields.io/pypi/status/ccdgen.svg)](https://pypi.python.org/pypi/ccdgen/)
+[![PyPi version](https://badgen.net/pypi/v/ccdgen/)](https://pypi.com/project/ccdgen)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/ccdgen.svg)](https://pypi.python.org/pypi/ccdgen/)
+[![GitHub license](https://img.shields.io/github/license/t-bre/ccdgen)](https://github.com/t-bre/ccdgen/blob/master/LICENSE)
+
 ## About
 
 A simple Python script to generate a [`compile_commands.json` database](https://clang.llvm.org/docs/JSONCompilationDatabase.html) 
