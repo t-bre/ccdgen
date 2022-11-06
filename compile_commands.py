@@ -44,6 +44,14 @@ def create_parser() -> argparse.ArgumentParser:
                         help='output file',
                         default='compile_commands.json')
 
+    parser.add_argument('--target',
+                        '-t',
+                        metavar='TARGET',
+                        type=str,
+                        required=False,
+                        help='make target',
+                        default='all')
+
     # this is to allow users to run their own clean command
     # (e.g. if the makefile doesn't have the "clean" target)
     parser.add_argument('--no-clean',
@@ -106,7 +114,7 @@ if __name__ == '__main__':
     if not config.no_clean:
         make(config.clean_target)
     
-    make_output = make('all')
+    make_output = make(config.target)
 
     # parse the output to generate compile database
     compile_db = []
