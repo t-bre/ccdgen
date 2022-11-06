@@ -10,7 +10,16 @@ compilation databases for `make` based [C/C++ projects in Visual Studio Code](ht
 
 Command line:
 ```sh
-python compile_commands.py [-h] [--compiler COMPILER] [--dir DIR] --extensions EXT [EXT ...] [--output FILE] [--target TARGET] [--clean-target CLEAN_TARGET] [--no-clean] ...
+python compile_commands.py 
+    [-h] 
+    [--compiler COMPILER] 
+    [--dir DIR] 
+    --extensions EXT [EXT ...] 
+    [--output FILE] 
+    [--target TARGET] 
+    [--clean-target CLEAN_TARGET] 
+    [--no-clean] 
+    ...
 ```
 
 Arguments:
