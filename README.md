@@ -8,9 +8,31 @@ compilation databases for `make` based [C/C++ projects in Visual Studio Code](ht
 
 ## Usage
 
+Command line:
 ```sh
-python compile_commands.py
+python compile_commands.py [-h] [--compiler COMPILER] [--dir DIR] --extensions EXT [EXT ...] [--output FILE] [--target TARGET] [--clean-target CLEAN_TARGET] [--no-clean] ...
 ```
+
+Arguments:
+
+| Option               | Default                 | Description                          |
+|----------------------|-------------------------|--------------------------------------|
+| `-h`, `--help`       |                         | Show help message and exit           |
+| `-c`, `--compiler`   | (auto detect)           | Specify compiler                     |
+| `-d`, `--dir`        | ./                      | Working directory to run `make` from |
+| `-e`, `--extensions` |                         | Extension(s) for source files        |
+| `-o`, `--output`     | ./compile_commands.json | Output file                          |
+| `t`, `--target`      | all                     | `make` build target                  |
+| `--clean-target`     | clean                   | Custom build cleaning target         |
+| `--no-clean`         |                         | Don't run build cleaning command     |
+
+Additional arguments (any, other than the target) can be passed to `make` by adding them at the end of the command following a double dash (`--`). For example, to run `make all -j` as the build command:
+
+```sh
+python compile_commands.py --extensions .c --target all -- -j
+```
+
+
 
 <!-- TODO: example as a vscode task -->
 
