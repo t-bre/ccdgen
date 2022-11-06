@@ -9,10 +9,9 @@
                 "command": "python3"
             },
             "args": [
-                "../src/compile_commands.py",
+                "-m", "ccdgen",
                 "--extensions", ".c",
-                "--target", "all",
-                "--", "-j"
+                "--", "make", "all"
             ]
         }
     ]
