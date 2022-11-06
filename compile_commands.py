@@ -101,12 +101,53 @@ def make(target: str, args: list[str] = []) -> str:
     return ret
 
 
+def parse_compile_commands(make_stdout: str, 
+                           compiler: str,
+                           extensions: list[str]) -> dict:
+    """Parses compile commands from stdout of `make`
+
+    Args:
+        make_stdout:    stdout from `make` call
+        compiler:       name of compiler
+        extensions:     list of file extensions which are being compiled
+
+    Returns:
+        Compile commands as a list of dictionaries
+    """
+    MAX_EXTENSION_LEN = max([len(ext) for ext in extensions])
+
+    compile_db = []
+
+    for line in make_output.splitlines():
+            
+            if compiler not in line:
+                continue
+
+            file = None
+            for token in line.split(' '):
+                if any(end in token[-MAX_EXTENSION_LEN:] for end in extensions):
+                    file = token.strip('\" ')
+                    file = os.path.abspath(file)
+                    break
+
+            if file is None:
+                continue
+
+            db_entry = {
+                "directory": os.path.dirname(file),
+                "command": line, # TODO: this needs to be shell escaped
+                "file": os.path.basename(file)
+            }
+            
+            compile_db.append(db_entry)
+
+    return compile_db
+
+
 if __name__ == '__main__':
 
     parser = create_parser()
     config = parser.parse_args(sys.argv[1:])
-
-    MAX_EXTENSION_LEN = max([len(ext) for ext in config.extensions])
 
     # run make and capture the output
     os.chdir(config.dir)
@@ -117,32 +158,11 @@ if __name__ == '__main__':
     make_output = make(config.target)
 
     # parse the output to generate compile database
-    compile_db = []
+    compile_db = parse_compile_commands(make_output, 
+                                        config.compiler, 
+                                        config.extensions)
 
-    for line in make_output.splitlines():
-        
-        if config.compiler not in line:
-            continue
-
-        file = None
-        for token in line.split(' '):
-            if any(end in token[-MAX_EXTENSION_LEN:] for end in config.extensions):
-                file = token.strip('\" ')
-                file = os.path.abspath(file)
-                break
-
-        if file is None:
-            continue
-
-        db_entry = {
-            "directory": os.path.dirname(file),
-            "command": line, # TODO: this needs to be shell escaped
-            "file": os.path.basename(file)
-        }
-        
-        compile_db.append(db_entry)
-
-    # output result
+    # save result to file
     with open(config.output, 'w') as file:
         file.write(json.dumps(compile_db, indent=4))
         file.write('\n')
