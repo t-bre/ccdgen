@@ -44,8 +44,32 @@ def create_parser() -> argparse.ArgumentParser:
                         help='output file',
                         default='compile_commands.json')
 
+    # this is to allow users to run their own clean command
+    # (e.g. if the makefile doesn't have the "clean" target)
+    parser.add_argument('--no-clean',
+                        required=False,
+                        action='store_true',
+                        help='don\'t run `make clean`',
+                        default=False)
+
+    parser.add_argument('--clean-target',
+                        type=str,
+                        required=False,
+                        help='custom `make` target for cleaning build',
+                        default='clean')
+
     return parser
     
+
+def clean(target: str):
+    """Runs `make clean` to clean the build 
+
+    This ensures all output is captured
+    """
+    ret = subprocess.run(['make', target], 
+                          stdout=subprocess.DEVNULL, 
+                          stderr=subprocess.DEVNULL)
+
 
 if __name__ == '__main__':
 
@@ -57,9 +81,8 @@ if __name__ == '__main__':
     # run make and capture the output
     os.chdir(config.dir)
     
-    subprocess.run(['make', 'clean'], 
-                   stdout=subprocess.DEVNULL, 
-                   stderr=subprocess.DEVNULL)
+    if not config.no_clean:
+        clean(config.clean_target)
     
     make_output = subprocess.run(['make', 'all', '-j'], 
                                  stdout=subprocess.PIPE, 
