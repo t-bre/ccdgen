@@ -65,14 +65,11 @@ Example Visual Studio Code task:
 }
 ```
 
-
-<!-- TODO: example as a vscode task -->
-
 ## Limitations
 
 - The script relies on the Python standard library modules `argparse`, `json`, 
   `os`, `subprocess` and `sys`.
-- This script relies on `make` printing the compiler commands it runs to 
+- This script relies on `make` echoing the compiler commands it runs to 
   stdout. If compiler commands are prefixed in the Makefile with `@` or 
   `make` is run in silent mode, the output cannot be captured.
 - The build must succeed to generate a full compilation database, though 
@@ -80,8 +77,9 @@ Example Visual Studio Code task:
 
 ## Other Tools
 
-- [CMake](https://cmake.org) can be used as is to generate 
+- [CMake](https://cmake.org) (since version 2.8.5) can be used as is to generate 
   `compile_commands.json` by adding `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` when 
-  calling it.
+  calling it. This only works for Unix Makefile builds.
 - [Bear](https://github.com/rizsotto/Bear) is much more advanced tool for 
-  generating compilation databases for `clang` tooling.
+  generating compilation databases for `clang` tooling. macOS, Linux and FreeBSD
+  are currently supported.
