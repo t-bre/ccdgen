@@ -7,7 +7,7 @@
 
 ## About
 
-A simple Python script to generate a [`compile_commands.json` database](https://clang.llvm.org/docs/JSONCompilationDatabase.html) 
+A Python script to generate a [`compile_commands.json` database](https://clang.llvm.org/docs/JSONCompilationDatabase.html) 
 by capturing the output of `make`. This script was originally created to provide
 compilation databases for `make` based [C/C++ projects in Visual Studio Code](https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference).
 
@@ -20,19 +20,10 @@ pip install ccdgen
 
 ## Usage
 
-Command line:
-```sh
-python compile_commands.py 
-    [-h] 
-    [--compiler COMPILER] 
-    [--dir DIR] 
-    --extensions EXT [EXT ...] 
-    [--output FILE] 
-    [--target TARGET] 
-    [--clean-target CLEAN_TARGET] 
-    [--no-clean] 
-    ...
+```text
+python3 -m ccdgen --extensions <arguments...> -- <your build command>
 ```
+
 
 Arguments:
 
@@ -43,14 +34,11 @@ Arguments:
 | `-d`, `--dir`        | ./                      | Working directory to run `make` from |
 | `-e`, `--extensions` |                         | Extension(s) for source files        |
 | `-o`, `--output`     | ./compile_commands.json | Output file                          |
-| `t`, `--target`      | all                     | `make` build target                  |
-| `--clean-target`     | clean                   | Custom build cleaning target         |
-| `--no-clean`         |                         | Don't run build cleaning command     |
 
-Additional arguments (any, other than the target) can be passed to `make` by adding them at the end of the command following a double dash (`--`). For example, to run `make all -j` as the build command:
+For example, to run `make all` as the build command for a C project:
 
 ```sh
-python compile_commands.py --extensions .c --target all -- -j
+python3 -m ccdgen --extensions .c -- make all
 ```
 
 Example Visual Studio Code task:
@@ -67,10 +55,9 @@ Example Visual Studio Code task:
                 "command": "python3"
             },
             "args": [
-                "../src/compile_commands.py",
+                "-m", "ccdgen",
                 "--extensions", ".c",
-                "--target", "all",
-                "--", "-j"
+                "--", "make", "all"
             ]
         }
     ]

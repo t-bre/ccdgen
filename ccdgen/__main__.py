@@ -17,7 +17,8 @@ def create_parser() -> argparse.ArgumentParser:
     formatter = lambda prog: argparse.HelpFormatter(prog, 
                                                     max_help_position=NCOLS)
 
-    parser = argparse.ArgumentParser(description=DESCRIPTION,
+    parser = argparse.ArgumentParser(prog='ccdgen',
+                                     description=DESCRIPTION,
                                      formatter_class=formatter)
 
     parser.add_argument('--compiler',
@@ -51,44 +52,21 @@ def create_parser() -> argparse.ArgumentParser:
                         help='output file',
                         default='compile_commands.json')
 
-    parser.add_argument('--target',
-                        '-t',
-                        metavar='TARGET',
-                        type=str,
-                        required=False,
-                        help='make target',
-                        default='all')
-
-    parser.add_argument('make_args',
+    parser.add_argument('build_command',
                         metavar='--',
                         type=str,
                         nargs=argparse.REMAINDER,
-                        help='make arguments (excluding target)',
+                        help='build command',
                         default=[])
-
-    # this is to allow users to run their own clean command
-    # (e.g. if the makefile doesn't have the "clean" target)
-    parser.add_argument('--clean-target',
-                        type=str,
-                        required=False,
-                        help='custom build cleaning target',
-                        default='clean')
-
-    parser.add_argument('--no-clean',
-                        required=False,
-                        action='store_true',
-                        help='don\'t run clean command',
-                        default=False)
 
     return parser
 
 
-def make(target: str, args: list[str] = []) -> str:
+def make(command: list[str] = []) -> str:
     """Runs `make` and captures stdout
 
     Args:
-        target: make target
-        args:   extra aruguments for make
+        command:    build command
 
     Returns:
         str:    captured stdout
@@ -96,10 +74,15 @@ def make(target: str, args: list[str] = []) -> str:
 
     CODEC = 'utf-8' # TODO: is this always the case?
 
-    result = subprocess.run(['make', target] + args, 
-                            stdout=subprocess.PIPE, 
-                            stderr=subprocess.PIPE)
-    ret = None
+    try:
+        result = subprocess.run(command + ['-B', '--dry-run'], 
+                                stdout=subprocess.PIPE, 
+                                stderr=subprocess.PIPE)
+        ret = None
+
+    except FileNotFoundError as e:
+        print(f'No such command: {e.filename}')
+        sys.exit(1)
 
     try:
         result.check_returncode()
@@ -194,17 +177,14 @@ if __name__ == '__main__':
     parser = create_parser()
     config = parser.parse_args(sys.argv[1:])
 
-    make_args = config.make_args
-    if len(make_args) > 0 and make_args[0] == '--':
-        make_args = make_args[1:]
+    build_command = config.build_command
+    if len(build_command) > 0 and build_command[0] == '--': # ignore '--'
+        build_command = build_command[1:]
 
     # run make and capture the output
     os.chdir(config.dir)
-    
-    if not config.no_clean:
-        make(config.clean_target)
-    
-    make_output = make(config.target, make_args)
+
+    make_output = make(build_command)
 
     # parse the output to generate compile database
     compile_db = parse_compile_commands(make_output, 
