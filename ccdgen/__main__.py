@@ -165,7 +165,7 @@ def detect_compiler(line: str) -> str | None:
 
     for token in line.split(' '):
         for compiler in COMPILERS:
-            if token == compiler or token[:-len(compiler)] == compiler:
+            if token[-len(compiler):] == compiler:
                 print(f'Detected compiler: {token}')
                 return token
 
