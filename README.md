@@ -8,7 +8,7 @@ compilation databases for `make` based [C/C++ projects in Visual Studio Code](ht
 
 ## Installation
 
-[Latest PyPi release](https://pypi.org/project/ccdgen/0.1.0/)
+[Latest PyPi release](https://pypi.org/project/ccdgen/0.0.1/)
 ```sh
 pip install ccdgen
 ```
