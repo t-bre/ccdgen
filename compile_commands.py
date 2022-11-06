@@ -50,12 +50,12 @@ def create_parser() -> argparse.ArgumentParser:
 if __name__ == '__main__':
 
     parser = create_parser()
-    args = parser.parse_args(sys.argv[1:])
+    config = parser.parse_args(sys.argv[1:])
 
-    print(args)
+    MAX_EXTENSION_LEN = max([len(ext) for ext in config.extensions])
 
     # run make and capture the output
-    os.chdir(args.dir)
+    os.chdir(config.dir)
     
     subprocess.run(['make', 'clean'], 
                    stdout=subprocess.DEVNULL, 
@@ -72,12 +72,12 @@ if __name__ == '__main__':
 
     for line in make_output.splitlines():
         
-        if args.compiler not in line:
+        if config.compiler not in line:
             continue
 
         file = None
         for token in line.split(' '):
-            if any(end in token[-3:] for end in args.extensions):
+            if any(end in token[-MAX_EXTENSION_LEN:] for end in config.extensions):
                 file = token.strip('\" ')
                 file = os.path.abspath(file)
                 break
@@ -86,13 +86,14 @@ if __name__ == '__main__':
             continue
 
         db_entry = {
-            "directory": args.dir, # TODO: this is not to spec
-            "command": line,
-            "file": file # TODO: this should just be the file name
+            "directory": os.path.dirname(file),
+            "command": line, # TODO: this needs to be shell escaped
+            "file": os.path.basename(file)
         }
         
         compile_db.append(db_entry)
 
     # output result
-    with open(args.output, 'w') as file:
+    with open(config.output, 'w') as file:
         file.write(json.dumps(compile_db, indent=4))
+        file.write('\n')
