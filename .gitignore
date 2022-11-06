@@ -3,5 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# distribution
+build/
+dist/
+
 # output
 compile_commands.json

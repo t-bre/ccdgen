@@ -1,10 +1,17 @@
-# Compile Commands Generator
+# Compile Commands Database GENerator
 
 ## About
 
 A simple Python script to generate a [`compile_commands.json` database](https://clang.llvm.org/docs/JSONCompilationDatabase.html) 
 by capturing the output of `make`. This script was originally created to provide
 compilation databases for `make` based [C/C++ projects in Visual Studio Code](https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference).
+
+## Installation
+
+[Latest PyPi release](https://pypi.org/project/ccdgen/0.1.0/)
+```sh
+pip install ccdgen
+```
 
 ## Usage
 
@@ -74,6 +81,7 @@ Example Visual Studio Code task:
   `make` is run in silent mode, the output cannot be captured.
 - The build must succeed to generate a full compilation database, though 
   warnings are not a problem.
+- Currently only tested with Python 3.10 on macOS Ventura.
 
 ## Other Tools
 
