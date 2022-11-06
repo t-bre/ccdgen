@@ -59,16 +59,38 @@ def create_parser() -> argparse.ArgumentParser:
                         default='clean')
 
     return parser
-    
 
-def clean(target: str):
-    """Runs `make clean` to clean the build 
 
-    This ensures all output is captured
+def make(target: str, args: list[str] = []) -> str:
+    """Runs `make` and captures stdout
+
+    Args:
+        target: make target
+        args:   extra aruguments for make
+
+    Returns:
+        str:    captured stdout
     """
-    ret = subprocess.run(['make', target], 
-                          stdout=subprocess.DEVNULL, 
-                          stderr=subprocess.DEVNULL)
+
+    CODEC = 'utf-8' # TODO: is this always the case?
+
+    # TODO: allow target and args to be specified
+    #       -j is definitely not always portable
+    result = subprocess.run(['make', target, '-j'], 
+                            stdout=subprocess.PIPE, 
+                            stderr=subprocess.PIPE)
+    ret = None
+
+    try:
+        result.check_returncode()
+        ret = result.stdout.decode(CODEC)
+
+    except subprocess.CalledProcessError as e:
+        msg = result.stderr.decode(CODEC)
+        print(msg, end='')
+        sys.exit(1)
+
+    return ret
 
 
 if __name__ == '__main__':
@@ -82,13 +104,9 @@ if __name__ == '__main__':
     os.chdir(config.dir)
     
     if not config.no_clean:
-        clean(config.clean_target)
+        make(config.clean_target)
     
-    make_output = subprocess.run(['make', 'all', '-j'], 
-                                 stdout=subprocess.PIPE, 
-                                 stderr=subprocess.DEVNULL)
-
-    make_output = make_output.stdout.decode('utf-8')
+    make_output = make('all')
 
     # parse the output to generate compile database
     compile_db = []
