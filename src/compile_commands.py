@@ -28,7 +28,7 @@ def create_parser() -> argparse.ArgumentParser:
                         metavar='DIR',
                         type=str,
                         required=False,
-                        help='working directory to run `make` from',
+                        help='working directory to run make from',
                         default=os.getcwd())
 
     parser.add_argument('--extensions',
@@ -54,18 +54,24 @@ def create_parser() -> argparse.ArgumentParser:
                         help='make target',
                         default='all')
 
+    parser.add_argument('remaining',
+                        type=str,
+                        nargs=argparse.REMAINDER,
+                        help='make arguments',
+                        default=[])
+
     # this is to allow users to run their own clean command
     # (e.g. if the makefile doesn't have the "clean" target)
     parser.add_argument('--no-clean',
                         required=False,
                         action='store_true',
-                        help='don\'t run `make clean`',
+                        help='don\'t run clean command',
                         default=False)
 
     parser.add_argument('--clean-target',
                         type=str,
                         required=False,
-                        help='custom `make` target for cleaning build',
+                        help='custom make target for cleaning build',
                         default='clean')
 
     return parser
@@ -86,7 +92,7 @@ def make(target: str, args: list[str] = []) -> str:
 
     # TODO: allow target and args to be specified
     #       -j is definitely not always portable
-    result = subprocess.run(['make', target, '-j'], 
+    result = subprocess.run(['make', target] + args, 
                             stdout=subprocess.PIPE, 
                             stderr=subprocess.PIPE)
     ret = None
@@ -120,7 +126,7 @@ def parse_compile_commands(make_stdout: str,
 
     compile_db = []
 
-    for line in make_output.splitlines():
+    for line in make_stdout.splitlines():
             
         if compiler is None:
             compiler = detect_compiler(line)
@@ -183,6 +189,7 @@ if __name__ == '__main__':
 
     parser = create_parser()
     config = parser.parse_args(sys.argv[1:])
+    make_args = config.remaining[1:]
 
     # run make and capture the output
     os.chdir(config.dir)
@@ -190,7 +197,7 @@ if __name__ == '__main__':
     if not config.no_clean:
         make(config.clean_target)
     
-    make_output = make(config.target)
+    make_output = make(config.target, make_args)
 
     # parse the output to generate compile database
     compile_db = parse_compile_commands(make_output, 
