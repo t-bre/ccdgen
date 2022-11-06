@@ -19,8 +19,9 @@ def create_parser() -> argparse.ArgumentParser:
                         '-c',
                         metavar='COMPILER',
                         type=str,
-                        required=True, # TODO: add compiler detection?
-                        help='compiler')
+                        required=False,
+                        help='compiler',
+                        default=None)
 
     parser.add_argument('--dir',
                         '-d',
@@ -121,28 +122,61 @@ def parse_compile_commands(make_stdout: str,
 
     for line in make_output.splitlines():
             
-            if compiler not in line:
-                continue
+        if compiler is None:
+            compiler = detect_compiler(line)
 
-            file = None
-            for token in line.split(' '):
-                if any(end in token[-MAX_EXTENSION_LEN:] for end in extensions):
-                    file = token.strip('\" ')
-                    file = os.path.abspath(file)
-                    break
+        if compiler is None or compiler not in line:
+            continue
 
-            if file is None:
-                continue
+        file = None
+        for token in line.split(' '):
+            if any(end in token[-MAX_EXTENSION_LEN:] for end in extensions):
+                file = token.strip('\" ')
+                file = os.path.abspath(file)
+                break
 
-            db_entry = {
-                "directory": os.path.dirname(file),
-                "command": line, # TODO: this needs to be shell escaped
-                "file": os.path.basename(file)
-            }
-            
-            compile_db.append(db_entry)
+        if file is None:
+            continue
+
+        db_entry = {
+            "directory": os.path.dirname(file),
+            "command": line, # TODO: this needs to be shell escaped
+            "file": os.path.basename(file)
+        }
+        
+        compile_db.append(db_entry)
+
+    if compiler is None:
+        print('Could not detect compiler')
+        sys.exit(1)
 
     return compile_db
+
+
+def detect_compiler(line: str) -> str | None:
+    """Tries to detect the name of a compiler in a line of text
+
+    Currently checks for:
+        gcc, g++, clang, clang++, cc
+
+    Args:
+        line:   Line of text (from make stdout)
+
+    Returns:
+        Name of compiler, or None if no matches
+    """
+    
+    COMPILERS = [
+        'gcc', 'g++', 'clang', 'clang++', 'cc',
+    ]
+
+    for token in line.split(' '):
+        for compiler in COMPILERS:
+            if token == compiler or token[:-len(compiler)] == compiler:
+                print(f'Detected compiler: {token}')
+                return token
+
+    return None
 
 
 if __name__ == '__main__':
