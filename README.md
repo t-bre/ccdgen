@@ -2,8 +2,8 @@
 
 ## About
 
-A simple Python script to generate a `compile_commands.json` database by
-capturing the output of `make`. This script was originally created to provide
+A simple Python script to generate a [`compile_commands.json` database](https://clang.llvm.org/docs/JSONCompilationDatabase.html) 
+by capturing the output of `make`. This script was originally created to provide
 compilation databases for `make` based [C/C++ projects in Visual Studio Code](https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference).
 
 ## Usage
@@ -12,13 +12,12 @@ compilation databases for `make` based [C/C++ projects in Visual Studio Code](ht
 python compile_commands.py
 ```
 
-The script relies on the Python standard library modules `json`, `os` and 
-`subprocess`.
-
 <!-- TODO: example as a vscode task -->
 
 ## Limitations
 
+- The script relies on the Python standard library modules `argparse`, `json`, 
+  `os`, `subprocess` and `sys`.
 - This script relies on `make` printing the compiler commands it runs to 
   stdout. If compiler commands are prefixed in the Makefile with `@` or 
   `make` is run in silent mode, the output cannot be captured.
