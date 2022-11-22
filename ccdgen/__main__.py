@@ -74,8 +74,15 @@ def make(command: list[str] = []) -> str:
 
     CODEC = 'utf-8' # TODO: is this always the case?
 
+
+    # dry run broke make's output on windows, so isn't used, but is on others
+    if sys.platform == "win32":
+        make_commands = ['-B'] 
+    else:
+        make_commands = ['-B', '--dry-run']
+
     try:
-        result = subprocess.run(command + ['-B', '--dry-run'], 
+        result = subprocess.run(command + make_output, 
                                 stdout=subprocess.PIPE, 
                                 stderr=subprocess.PIPE)
         ret = None
