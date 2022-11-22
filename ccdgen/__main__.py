@@ -82,7 +82,7 @@ def make(command: list[str] = []) -> str:
         make_commands = ['-B', '--dry-run']
 
     try:
-        result = subprocess.run(command + make_output, 
+        result = subprocess.run(command + make_commands, 
                                 stdout=subprocess.PIPE, 
                                 stderr=subprocess.PIPE)
         ret = None
