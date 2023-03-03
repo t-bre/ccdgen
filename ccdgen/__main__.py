@@ -74,12 +74,11 @@ def make(command: list[str] = []) -> str:
 
     CODEC = 'utf-8' # TODO: is this always the case?
 
-
-    # dry run broke make's output on windows, so isn't used, but is on others
+    # dry run doesn't seem to work on windows
     if sys.platform == "win32":
-        make_commands = ['-B'] 
+        make_commands = ['--always-make'] 
     else:
-        make_commands = ['-B', '--dry-run']
+        make_commands = ['--always-make', '--dry-run']
 
     try:
         result = subprocess.run(command + make_commands, 
@@ -94,6 +93,7 @@ def make(command: list[str] = []) -> str:
     try:
         result.check_returncode()
         ret = result.stdout.decode(CODEC)
+        print(ret)
 
     except subprocess.CalledProcessError as e:
         msg = result.stderr.decode(CODEC)
@@ -129,7 +129,9 @@ def parse_compile_commands(make_stdout: str,
             continue
 
         file = None
-        for token in line.split(' '):
+        tokens = line.split(' ')
+
+        for token in tokens:
             if any(end in token[-MAX_EXTENSION_LEN:] for end in extensions):
                 file = token.strip('\" ')
                 file = os.path.abspath(file)
@@ -138,9 +140,11 @@ def parse_compile_commands(make_stdout: str,
         if file is None:
             continue
 
+        tokens[-1] = file # use abs path for file in compiler command
+
         db_entry = {
             "directory": os.path.dirname(file),
-            "command": line,
+            "command": ' '.join(tokens),
             "file": os.path.basename(file)
         }
         
