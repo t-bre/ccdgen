@@ -25,3 +25,6 @@ MANIFEST
 
 # output
 compile_commands.json
+
+# macOS
+.DS_Store
