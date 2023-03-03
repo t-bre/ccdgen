@@ -48,7 +48,7 @@ Example Visual Studio Code task:
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "compile_commands.py",
+            "label": "ccdgen",
             "type": "shell",
             "command": "python",
             "osx": {
