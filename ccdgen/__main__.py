@@ -74,11 +74,7 @@ def make(command: list[str] = []) -> str:
 
     CODEC = 'utf-8' # TODO: is this always the case?
 
-    # dry run doesn't seem to work on windows
-    if sys.platform == "win32":
-        make_commands = ['--always-make'] 
-    else:
-        make_commands = ['--always-make', '--dry-run']
+    make_commands = ['--always-make', '--dry-run']
 
     try:
         result = subprocess.run(command + make_commands, 
