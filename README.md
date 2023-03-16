@@ -73,7 +73,7 @@ Example Visual Studio Code task:
   `make` is run in silent mode, the output cannot be captured.
 - The build must succeed to generate a full compilation database, though 
   warnings are not a problem.
-- Currently only tested with Python 3.10 on macOS Ventura.
+- Currently only tested with Python 3.10 on macOS Ventura and Windows 10.
 
 ## Other Tools
 
