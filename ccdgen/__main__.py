@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -137,10 +138,12 @@ def parse_compile_commands(make_stdout: str,
             continue
 
         tokens[-1] = file # use abs path for file in compiler command
+        command = ' '.join(tokens)
+        command = replace_relative_paths(command)
 
         db_entry = {
             "directory": os.path.dirname(file),
-            "command": ' '.join(tokens),
+            "command": command,
             "file": os.path.basename(file)
         }
         
@@ -152,6 +155,26 @@ def parse_compile_commands(make_stdout: str,
 
     return compile_db
 
+def replace_relative_paths(command: str) -> str:
+    """Replaces any relative paths with absolute paths
+
+    Currently only checks for include paths starting with -I
+
+    Args:
+        command:    Compiler command from `make` output
+
+    Returns:
+        Command with relative paths replaced
+    """
+
+    matches = re.findall(r'-I(?:\.\.\/)+[^-\s]+', command)
+
+    for m in matches:
+        relative_path = m[2:]  # remove '-I' prefix
+        absolute_path = os.path.abspath(relative_path)
+        command = command.replace(m, '-I' + absolute_path)
+    
+    return command
 
 def detect_compiler(line: str) -> str | None:
     """Tries to detect the name of a compiler in a line of text
