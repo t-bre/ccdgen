@@ -6,7 +6,7 @@ def read(fname):
 
 setuptools.setup(
     name = "ccdgen",
-    version = "0.0.5",
+    version = "0.0.6",
     author = "Tim Brewis",
     author_email = "timbrewis27@gmail.com",
     license = "Apache-2.0",
