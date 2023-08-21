@@ -2,7 +2,7 @@ BUILD_DIR = build
 
 C_SOURCES = src/test.c src/foo/foo.c
 C_FLAGS = -Wall -Werror -std=c11 -O3
-C_INCLUDES = -Isrc/foo
+C_INCLUDES = -Isrc/foo -Isrc/bar
 CC = gcc
 EXE = $(BUILD_DIR)/test
 
