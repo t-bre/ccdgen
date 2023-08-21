@@ -167,12 +167,12 @@ def replace_relative_paths(command: str) -> str:
         Command with relative paths replaced
     """
 
-    matches = re.findall(r'-I(?:\.\.\/)+[^-\s]+', command)
+    matches = re.findall(r'-I([^\s]+)', command)
 
     for m in matches:
-        relative_path = m[2:]  # remove '-I' prefix
+        relative_path = m # capture does not include the -I
         absolute_path = os.path.abspath(relative_path)
-        command = command.replace(m, '-I' + absolute_path)
+        command = command.replace(m, absolute_path)
     
     return command
 
