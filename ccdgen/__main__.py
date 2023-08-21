@@ -167,12 +167,16 @@ def replace_relative_paths(command: str) -> str:
         Command with relative paths replaced
     """
 
+    # capture does not include the -I
     matches = re.findall(r'-I([^\s]+)', command)
 
     for m in matches:
-        relative_path = m # capture does not include the -I
+        # space in replacement ensures that include paths which are a subset of
+        # another include path are not replaced in that path
+        # TODO: regex replace might remove need for this^
+        relative_path = m
         absolute_path = os.path.abspath(relative_path)
-        command = command.replace(m, absolute_path)
+        command = command.replace(m + ' ', absolute_path + ' ')
     
     return command
 
