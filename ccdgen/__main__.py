@@ -138,8 +138,7 @@ def parse_compile_commands(make_stdout: str,
 
         if file_absolute is None:
             continue
-
-        tokens[-1] = file_absolute # use abs path for file in compiler command
+        
         command = ' '.join(tokens)
         command = replace_relative_include_paths(command)
         command = command.replace(file_relative, file_absolute)
