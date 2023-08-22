@@ -125,26 +125,29 @@ def parse_compile_commands(make_stdout: str,
         if compiler is None or compiler not in line:
             continue
 
-        file = None
+        file_absolute = None
+        file_relative = None
         tokens = line.split(' ')
 
         for token in tokens:
             if any(end in token[-MAX_EXTENSION_LEN:] for end in extensions):
                 file = token.strip('\" ')
-                file = os.path.abspath(file)
+                file_relative = file
+                file_absolute = os.path.abspath(file)
                 break
 
-        if file is None:
+        if file_absolute is None:
             continue
 
-        tokens[-1] = file # use abs path for file in compiler command
+        tokens[-1] = file_absolute # use abs path for file in compiler command
         command = ' '.join(tokens)
-        command = replace_relative_paths(command)
+        command = replace_relative_include_paths(command)
+        command = command.replace(file_relative, file_absolute)
 
         db_entry = {
-            "directory": os.path.dirname(file),
+            "directory": os.path.dirname(file_absolute),
             "command": command,
-            "file": os.path.basename(file)
+            "file": os.path.basename(file_absolute)
         }
         
         compile_db.append(db_entry)
@@ -155,7 +158,7 @@ def parse_compile_commands(make_stdout: str,
 
     return compile_db
 
-def replace_relative_paths(command: str) -> str:
+def replace_relative_include_paths(command: str) -> str:
     """Replaces any relative paths with absolute paths
 
     Currently only checks for include paths starting with -I
