@@ -186,8 +186,6 @@ def replace_relative_paths(command: str) -> str:
         relative_path = ''.join(m)
         absolute_path = os.path.abspath(relative_path)
 
-# python3 /Users/opses/Documents/Git/ccdgen/ccdgen/__main__.py --extensions .c --output /Users/opses/Documents/Git/verto-fw/mcu/compile_commands.json -- make -C /Users/opses/Documents/Git/verto-fw -j    
-    
     return command
 
 def detect_compiler(line: str) -> str | None:
