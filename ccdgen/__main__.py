@@ -140,7 +140,7 @@ def parse_compile_commands(make_stdout: str,
             continue
         
         command = ' '.join(tokens)
-        command = replace_relative_include_paths(command)
+        command = replace_relative_paths(command)
         command = command.replace(file_relative, file_absolute)
 
         db_entry = {
@@ -157,7 +157,7 @@ def parse_compile_commands(make_stdout: str,
 
     return compile_db
 
-def replace_relative_include_paths(command: str) -> str:
+def replace_relative_paths(command: str) -> str:
     """Replaces any relative paths with absolute paths
 
     Currently only checks for include paths starting with -I
@@ -169,16 +169,24 @@ def replace_relative_include_paths(command: str) -> str:
         Command with relative paths replaced
     """
 
-    # capture does not include the -I
-    matches = re.findall(r'-I([^\s]+)', command)
+    # replace relative include paths
+    matches = re.findall(r'-I([^\s]+)', command) # capture does not include -I
 
     for m in matches:
         # space in replacement ensures that include paths which are a subset of
         # another include path are not replaced in that path
-        # TODO: regex replace might remove need for this^
         relative_path = m
         absolute_path = os.path.abspath(relative_path)
         command = command.replace(m + ' ', absolute_path + ' ')
+
+    # replace relative file paths
+    matches = re.findall(r'(\.\.\/)+([a-zA-z0-9\/]*)(\.)([a-zA-z0-9]+)', command)
+    
+    for m in matches:
+        relative_path = ''.join(m)
+        absolute_path = os.path.abspath(relative_path)
+
+# python3 /Users/opses/Documents/Git/ccdgen/ccdgen/__main__.py --extensions .c --output /Users/opses/Documents/Git/verto-fw/mcu/compile_commands.json -- make -C /Users/opses/Documents/Git/verto-fw -j    
     
     return command
 
@@ -221,6 +229,26 @@ if __name__ == '__main__':
     os.chdir(config.dir)
 
     make_output = make(build_command)
+
+    # change working directory to that which make runs from
+    # also check for make calling make (only 1 level deep)
+    def chdir_if_make_does(make_cmd: str):
+        make_dir_opts = ['-C', '--directory']
+        for opt in make_dir_opts:
+            try:
+                idx = make_cmd.index(opt)
+                cd_path = make_cmd[idx+1]
+                print(f'Changed directory: {os.path.abspath(cd_path)}')
+                os.chdir(cd_path)
+            except ValueError:
+                pass
+
+    chdir_if_make_does(build_command)
+
+    for line in make_output.splitlines():
+        if '/bin/make' in line: # make probably called make if true
+            chdir_if_make_does(line.split(' '))
+            break
 
     # parse the output to generate compile database
     compile_db = parse_compile_commands(make_output, 
